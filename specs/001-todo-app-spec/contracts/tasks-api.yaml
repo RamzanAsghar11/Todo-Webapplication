@@ -1,0 +1,498 @@
+openapi: 3.0.3
+info:
+  title: Todo Application API
+  description: |
+    RESTful API for managing todo tasks. This API provides CRUD operations for tasks
+    scoped to individual users. Authentication is not implemented in this phase.
+  version: 1.0.0
+  contact:
+    name: Todo App Team
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+tags:
+  - name: tasks
+    description: Task management operations
+
+paths:
+  /api/{user_id}/tasks:
+    get:
+      tags:
+        - tasks
+      summary: Get all tasks for a user
+      description: Retrieves all tasks belonging to the specified user, ordered by creation date (newest first)
+      operationId: getTasks
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: User identifier
+          schema:
+            type: string
+            example: "test-user"
+      responses:
+        '200':
+          description: Successfully retrieved tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+              examples:
+                empty:
+                  summary: No tasks
+                  value: []
+                with_tasks:
+                  summary: Multiple tasks
+                  value:
+                    - id: "550e8400-e29b-41d4-a716-446655440000"
+                      user_id: "test-user"
+                      title: "Complete project documentation"
+                      description: "Write comprehensive docs"
+                      completed: false
+                      created_at: "2026-02-12T10:30:00Z"
+                      updated_at: "2026-02-12T10:30:00Z"
+                    - id: "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+                      user_id: "test-user"
+                      title: "Buy groceries"
+                      description: null
+                      completed: true
+                      created_at: "2026-02-11T15:20:00Z"
+                      updated_at: "2026-02-12T09:15:00Z"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - tasks
+      summary: Create a new task
+      description: Creates a new task for the specified user
+      operationId: createTask
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: User identifier
+          schema:
+            type: string
+            example: "test-user"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreate'
+            examples:
+              with_description:
+                summary: Task with description
+                value:
+                  title: "Complete project documentation"
+                  description: "Write comprehensive docs for the Todo API"
+              without_description:
+                summary: Task without description
+                value:
+                  title: "Buy groceries"
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+              example:
+                id: "550e8400-e29b-41d4-a716-446655440000"
+                user_id: "test-user"
+                title: "Complete project documentation"
+                description: "Write comprehensive docs for the Todo API"
+                completed: false
+                created_at: "2026-02-12T10:30:00Z"
+                updated_at: "2026-02-12T10:30:00Z"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              examples:
+                missing_title:
+                  summary: Missing title
+                  value:
+                    detail: "Field required"
+                    field: "title"
+                title_too_long:
+                  summary: Title exceeds max length
+                  value:
+                    detail: "String should have at most 500 characters"
+                    field: "title"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/{user_id}/tasks/{id}:
+    get:
+      tags:
+        - tasks
+      summary: Get a single task
+      description: Retrieves a specific task by ID for the specified user
+      operationId: getTask
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: User identifier
+          schema:
+            type: string
+            example: "test-user"
+        - name: id
+          in: path
+          required: true
+          description: Task ID (UUID)
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Successfully retrieved task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+              example:
+                id: "550e8400-e29b-41d4-a716-446655440000"
+                user_id: "test-user"
+                title: "Complete project documentation"
+                description: "Write comprehensive docs"
+                completed: false
+                created_at: "2026-02-12T10:30:00Z"
+                updated_at: "2026-02-12T10:30:00Z"
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                detail: "Task not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - tasks
+      summary: Update a task
+      description: Updates the title and/or description of an existing task
+      operationId: updateTask
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: User identifier
+          schema:
+            type: string
+            example: "test-user"
+        - name: id
+          in: path
+          required: true
+          description: Task ID (UUID)
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdate'
+            examples:
+              update_both:
+                summary: Update title and description
+                value:
+                  title: "Complete project documentation (updated)"
+                  description: "Write comprehensive docs with examples"
+              update_title_only:
+                summary: Update title only
+                value:
+                  title: "Buy groceries and cook dinner"
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+              example:
+                id: "550e8400-e29b-41d4-a716-446655440000"
+                user_id: "test-user"
+                title: "Complete project documentation (updated)"
+                description: "Write comprehensive docs with examples"
+                completed: false
+                created_at: "2026-02-12T10:30:00Z"
+                updated_at: "2026-02-12T14:45:00Z"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                detail: "Task not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - tasks
+      summary: Delete a task
+      description: Permanently deletes a task
+      operationId: deleteTask
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: User identifier
+          schema:
+            type: string
+            example: "test-user"
+        - name: id
+          in: path
+          required: true
+          description: Task ID (UUID)
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '204':
+          description: Task deleted successfully (no content)
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                detail: "Task not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/{user_id}/tasks/{id}/complete:
+    patch:
+      tags:
+        - tasks
+      summary: Toggle task completion status
+      description: Updates the completion status of a task
+      operationId: toggleTaskCompletion
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: User identifier
+          schema:
+            type: string
+            example: "test-user"
+        - name: id
+          in: path
+          required: true
+          description: Task ID (UUID)
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskComplete'
+            examples:
+              mark_complete:
+                summary: Mark as complete
+                value:
+                  completed: true
+              mark_incomplete:
+                summary: Mark as incomplete
+                value:
+                  completed: false
+      responses:
+        '200':
+          description: Task completion status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+              example:
+                id: "550e8400-e29b-41d4-a716-446655440000"
+                user_id: "test-user"
+                title: "Complete project documentation"
+                description: "Write comprehensive docs"
+                completed: true
+                created_at: "2026-02-12T10:30:00Z"
+                updated_at: "2026-02-12T16:20:00Z"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                detail: "Task not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Task:
+      type: object
+      required:
+        - id
+        - user_id
+        - title
+        - completed
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique task identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        user_id:
+          type: string
+          description: User identifier who owns this task
+          example: "test-user"
+        title:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Task title
+          example: "Complete project documentation"
+        description:
+          type: string
+          nullable: true
+          maxLength: 2000
+          description: Optional task description
+          example: "Write comprehensive docs for the Todo API"
+        completed:
+          type: boolean
+          description: Task completion status
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          description: Task creation timestamp (UTC)
+          example: "2026-02-12T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp (UTC)
+          example: "2026-02-12T10:30:00Z"
+
+    TaskCreate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Task title (required)
+          example: "Complete project documentation"
+        description:
+          type: string
+          nullable: true
+          maxLength: 2000
+          description: Optional task description
+          example: "Write comprehensive docs for the Todo API"
+
+    TaskUpdate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Updated task title
+          example: "Complete project documentation (updated)"
+        description:
+          type: string
+          nullable: true
+          maxLength: 2000
+          description: Updated task description
+          example: "Write comprehensive docs with examples"
+
+    TaskComplete:
+      type: object
+      required:
+        - completed
+      properties:
+        completed:
+          type: boolean
+          description: New completion status
+          example: true
+
+    Error:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+          description: Human-readable error message
+          example: "Task not found"
+
+    ValidationError:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+          description: Human-readable validation error message
+          example: "Field required"
+        field:
+          type: string
+          description: Field name that failed validation (optional)
+          example: "title"

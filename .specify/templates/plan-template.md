@@ -31,7 +31,16 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Verify compliance with `.specify/memory/constitution.md`:
+
+- [ ] **Technology Stack Mandate**: Using Next.js 16+/TypeScript (frontend), FastAPI/Python (backend), SQLModel (ORM), Neon PostgreSQL (database), Better Auth (authentication)?
+- [ ] **API Design & User Scoping**: All API endpoints follow `/api/{user_id}/tasks` pattern with user-scoped routes?
+- [ ] **Security-First Authentication**: Backend verifies JWT tokens, derives user_id from JWT payload, rejects mismatched requests?
+- [ ] **Database Access via SQLModel Only**: All database operations use SQLModel ORM (no raw SQL unless justified)?
+- [ ] **Spec-Driven Development**: Following spec → plan → tasks → implement workflow?
+- [ ] **Separation of Concerns**: Clear frontend/backend separation, stateless backend, no business logic in frontend?
+
+**Violations Requiring Justification**: [List any principle violations and document in Complexity Tracking section below]
 
 ## Project Structure
 

@@ -208,3 +208,66 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+## Agent Configuration
+
+The following agents should be used for specific development tasks in this project:
+
+- **Better-auth-security**: Use this agent for authentication implementation
+- **frontend-ui-designer**: Use this agent for frontend development (e.g., Next.js)
+- **database-architecture**: Use this agent for database design and operations
+- **fastapi-backend-dev**: Use this agent for FastAPI development
+- **sql-model-expert**: Use this agent for ORM implementation
+
+Each agent is configured with specific skills:
+
+- Better-auth-security Agent should use "Authentication with better auth skill"
+- frontend-ui-designer Agent should use "frontend UIUX design skill"
+- database-architecture Agent should use "Database skill"
+- fastapi-backend-dev Agent should use "Backend with fastapi and python skill"
+- sql-model-expert Agent should use "ORM with sql model skill"
+
+## Project Requirements
+
+### Basic Level Functionality
+**Objective**: Using Claude Code and Spec-Kit Plus transform the console app into a modern multi-user web application with persistent storage.
+
+**Development Approach**: Use the Agentic Dev Stack workflow: Write spec → Generate plan → Break into tasks → Implement via Claude Code. No manual coding allowed. We will review the process, prompts, and iterations to judge each phase and project.
+
+**Requirements**
+- Implement all 5 Basic Level features as a web application
+- Create RESTful API endpoints
+- Build responsive frontend interface
+- Store data in Neon Serverless PostgreSQL database
+- Authentication – Implement user signup/signin using Better Auth
+
+### Technology Stack
+| Layer | Technology |
+|-------|------------|
+| Frontend | Next.js 16+ (App Router) |
+| Backend | Python FastAPI |
+| ORM | SQLModel |
+| Database | Neon Serverless PostgreSQL |
+| Spec-Driven | Claude Code + Spec-Kit Plus |
+| Authentication | Better Auth |
+
+### Better Auth JWT Implementation
+Better Auth can be configured to issue JWT (JSON Web Token) tokens when users log in. These tokens are self-contained credentials that include user information and can be verified by any service that knows the secret key.
+
+**How It Works**
+1. User logs in on Frontend → Better Auth creates a session and issues a JWT token
+2. Frontend makes API call → Includes the JWT token in the Authorization: Bearer <token> header
+3. Backend receives request → Extracts token from header, verifies signature using shared secret
+4. Backend identifies user → Decodes token to get user ID, email, etc. and matches it with the user ID in the URL
+5. Backend filters data → Returns only tasks belonging to that user
+
+## Active Technologies
+- Python 3.11 (backend), TypeScript 5.0+ (frontend), Node.js 18+ + Next.js 16+ (App Router), FastAPI 0.104+, SQLModel 0.0.8+, Better Auth 0.2.0+, Neon Serverless PostgreSQL (001-todo-app-spec)
+- Neon Serverless PostgreSQL database with SQLModel ORM (001-todo-app-spec)
+- Python 3.11 (backend), TypeScript 5.0+ (frontend), Node.js 18+ + FastAPI 0.104+, SQLModel 0.0.8+, Next.js 16+, React 18+ (001-todo-app-spec)
+- Neon Serverless PostgreSQL (cloud-hosted, serverless) (001-todo-app-spec)
+- Python 3.11 (backend), TypeScript 5.0+ (frontend), Node.js 18+ + Better Auth 0.2.0+, FastAPI 0.104+, SQLModel 0.0.8+, Next.js 16+ (App Router), PyJWT (for JWT verification) (002-add-authentication)
+- Neon Serverless PostgreSQL (existing database extended with users table) (002-add-authentication)
+
+## Recent Changes
+- 001-todo-app-spec: Added Python 3.11 (backend), TypeScript 5.0+ (frontend), Node.js 18+ + Next.js 16+ (App Router), FastAPI 0.104+, SQLModel 0.0.8+, Better Auth 0.2.0+, Neon Serverless PostgreSQL
