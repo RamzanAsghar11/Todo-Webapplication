@@ -1,7 +1,7 @@
 'use client';
 
-import { Task } from '@/types/task';
-import { updateTask, deleteTask } from '@/lib/api';
+import { Task } from '../types/task';
+import { updateTask, deleteTask } from '../lib/api';
 import { useState } from 'react';
 
 interface TaskListProps {

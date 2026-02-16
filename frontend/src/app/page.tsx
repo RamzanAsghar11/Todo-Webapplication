@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import TaskForm from '@/components/TaskForm';
-import TaskList from '@/components/TaskList';
-import SignOutButton from '@/components/SignOutButton';
-import { getTasks } from '@/lib/api';
-import { Task } from '@/types/task';
+import TaskForm from '../components/TaskForm';
+import TaskList from '../components/TaskList';
+import SignOutButton from '../components/SignOutButton';
+import { getTasks } from '../lib/api';
+import { Task } from '../types/task';
 
 export default function Home() {
   const router = useRouter();
